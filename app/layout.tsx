@@ -1,13 +1,15 @@
 // app/layout.tsx
 import 'modern-normalize';
 import './globals.css';
+import { Toaster } from 'react-hot-toast';
+import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ReactNode } from 'react';
+import AuthProvider from '@/components/AuthProvider/AuthProvider';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -42,13 +44,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.variable}`}>
         <TanStackProvider>
-          <Header />
+          <AuthProvider>
+            <Header />
 
-          {children}
-          {modal}
+            {children}
+            {modal}
 
-          <Footer />
-          <ReactQueryDevtools initialIsOpen={false} />
+            <Footer />
+            <Toaster />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </AuthProvider>
         </TanStackProvider>
       </body>
     </html>

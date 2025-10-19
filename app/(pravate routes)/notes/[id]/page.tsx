@@ -1,6 +1,6 @@
 // app/notes/[id]/page.tsx
 
-import { fetchNoteById } from '@/lib/api';
+import { fetchNoteById } from '@/lib/api/api';
 import {
   dehydrate,
   HydrationBoundary,
