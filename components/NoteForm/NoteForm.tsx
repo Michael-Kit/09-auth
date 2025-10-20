@@ -1,68 +1,31 @@
 'use client';
 
 import css from './NoteForm.module.css';
-import * as Yup from 'yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
 import { createNote } from '@/lib/api/clientApi';
+import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { NoteFormData } from '@/types/note';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { NoteTag, type NoteFormValues } from '@/types/note';
 import { useNoteDraftStore } from '@/lib/store/noteStore';
 
-const OrderSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(3, 'Title must be at least 3 characters')
-    .max(50, 'Title must be at most 50 characters')
-    .required('Title is required'),
-  content: Yup.string().max(500, 'Content must be at most 500 characters'),
-  tag: Yup.string()
-    .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'])
-    .required('Tag is required'),
-});
-
 export default function NoteForm() {
-  const queryClient = useQueryClient();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
 
-  function onClose() {
-    router.back();
-  }
+  const onClose = () => router.back();
 
-  const createNoteMutate = useMutation({
-    mutationFn: (data: NoteFormData) => createNote(data),
-    onSuccess() {
+  const { mutate } = useMutation({
+    mutationFn: (note: NoteFormValues) => createNote(note),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      toast.success('Note created!');
       clearDraft();
       onClose();
     },
-    onError(error) {
-      toast.error(error.message);
-    },
+    onError: () => toast.error('Failed to create note.'),
   });
-
-  async function handleSubmit(formData: FormData) {
-    const valueCreatedForm: NoteFormData = {
-      title: (formData.get('title') as string) || '',
-      content: (formData.get('content') as string) || '',
-      tag:
-        (formData.get('tag') as
-          | 'Todo'
-          | 'Work'
-          | 'Personal'
-          | 'Meeting'
-          | 'Shopping') || 'Todo',
-    };
-
-    try {
-      await OrderSchema.validate(valueCreatedForm, { abortEarly: false });
-      createNoteMutate.mutate(valueCreatedForm);
-    } catch (error: unknown) {
-      if (error instanceof Yup.ValidationError) {
-        toast.error(error.errors.join(', '));
-      }
-    }
-  }
 
   const handleChange = (
     event: React.ChangeEvent<
@@ -73,6 +36,17 @@ export default function NoteForm() {
       ...draft,
       [event.target.name]: event.target.value,
     });
+  };
+
+  const handleSubmit = (formData: FormData) => {
+    const rawValues = Object.fromEntries(formData.entries());
+
+    const values: NoteFormValues = {
+      title: String(rawValues.title || ''),
+      content: String(rawValues.content || ''),
+      tag: rawValues.tag as NoteTag,
+    };
+    mutate(values);
   };
 
   return (
@@ -86,7 +60,6 @@ export default function NoteForm() {
           className={css.input}
           defaultValue={draft?.title}
           onChange={handleChange}
-          required
         />
       </div>
 
@@ -110,18 +83,22 @@ export default function NoteForm() {
           className={css.select}
           defaultValue={draft?.tag}
           onChange={handleChange}
-          required
         >
-          <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
           <option value="Meeting">Meeting</option>
           <option value="Shopping">Shopping</option>
+          <option value="Ideas">Ideas</option>
+          <option value="Travel">Travel</option>
+          <option value="Finance">Finance</option>
+          <option value="Health">Health</option>
+          <option value="Important">Important</option>
+          <option value="Todo">Todo</option>
         </select>
       </div>
 
       <div className={css.actions}>
-        <button onClick={onClose} type="button" className={css.cancelButton}>
+        <button type="button" className={css.cancelButton} onClick={onClose}>
           Cancel
         </button>
         <button type="submit" className={css.submitButton} disabled={false}>

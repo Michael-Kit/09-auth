@@ -1,35 +1,41 @@
 // app/layout.tsx
-import 'modern-normalize';
-import './globals.css';
-import { Toaster } from 'react-hot-toast';
-import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
+import './globals.css';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
+import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
 import AuthProvider from '@/components/AuthProvider/AuthProvider';
 
 const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
   variable: '--font-roboto',
   display: 'swap',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: 'Note Hub',
-  description:
-    'Keep your ideas safe and simple with Note Hub — a clean, fast, and reliable personal notebook without the clutter.',
+  title: 'NoteHub',
+  description: 'Web app for better note management',
   openGraph: {
-    title: 'Note Hub',
-    description:
-      'Note Hub is a clean and minimal personal notebook for capturing your thoughts and ideas. Fast, reliable, and distraction-free — your space to think clearly.',
-    url: 'https://08-zustand-tau-gilt.vercel.app',
+    title: 'NoteHub',
+    description: 'Manage your notes with NoteHub',
+    url: `https://08-zustand-eight-pi.vercel.app`,
     images: [
-      { url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg' },
+      {
+        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NoteHub',
+      },
     ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `NoteHub`,
+    description: 'Manage your notes with NoteHub',
+    images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
   },
 };
 
@@ -37,22 +43,18 @@ export default function RootLayout({
   children,
   modal,
 }: Readonly<{
-  children: ReactNode;
-  modal: ReactNode;
+  children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable}`}>
+      <body className={roboto.variable}>
         <TanStackProvider>
           <AuthProvider>
             <Header />
-
             {children}
             {modal}
-
             <Footer />
-            <Toaster />
-            <ReactQueryDevtools initialIsOpen={false} />
           </AuthProvider>
         </TanStackProvider>
       </body>

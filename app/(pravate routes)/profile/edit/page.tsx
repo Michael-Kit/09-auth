@@ -1,57 +1,52 @@
 'use client';
 
-import toast from 'react-hot-toast';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { getMe, updateMe } from '@/lib/api/clientApi';
-import { ApiError } from '@/app/api/api';
+import Image from 'next/image';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import css from './EditProfilePage.module.css';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { ApiError } from '@/app/api/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
-export default function EditProfile() {
-  const [userName, setUserName] = useState('');
-  const setUser = useAuthStore((state) => state.setUser);
-  const { user } = useAuthStore();
+const EditProfile = () => {
+  const [username, setUsername] = useState('');
   const router = useRouter();
+  const { user, setUser } = useAuthStore();
 
   useEffect(() => {
     getMe().then((user) => {
-      setUserName(user.username);
+      setUsername(user.username ?? '');
     });
   }, []);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setUserName(event.target.value);
-  }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+  };
 
-  function handleCancel() {
-    router.back();
-  }
+  const handleSaveUser = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  async function handleSaveUser(formData: FormData) {
     if (!user) {
       return;
     }
 
-    const username = formData.get('username') as string;
-
     try {
-      const res = await updateMe({ username });
-      if (res) {
-        setUser(res);
-        router.push('/profile');
-      }
+      await updateMe({ username });
+      const updatedUser = await getMe();
+      setUser(updatedUser);
+      router.push('/profile');
     } catch (error) {
       toast.error(
-        (error as ApiError).response?.data?.response?.validation?.body
-          ?.message ??
-          (error as ApiError).response?.data?.response?.message ??
-          (error as ApiError).response?.data?.error ??
+        (error as ApiError).response?.data?.error ??
+          (error as ApiError).message ??
           'Oops... some error',
       );
+      router.push('/profile');
     }
-  }
+  };
+
+  const cancel = () => router.back();
 
   return (
     <main className={css.mainContent}>
@@ -68,30 +63,25 @@ export default function EditProfile() {
           />
         )}
 
-        <form action={handleSaveUser} className={css.profileInfo}>
+        <form className={css.profileInfo} onSubmit={handleSaveUser}>
           <div className={css.usernameWrapper}>
-            <label htmlFor="username">Username: {userName}</label>
+            <label htmlFor="username">Username: {username}</label>
             <input
               id="username"
-              name="username"
               type="text"
               className={css.input}
-              defaultValue={userName}
+              value={username}
               onChange={handleChange}
             />
           </div>
 
-          <p>Email: {user?.email || null}</p>
+          <p>Email: {user?.email}</p>
 
           <div className={css.actions}>
             <button type="submit" className={css.saveButton}>
               Save
             </button>
-            <button
-              type="button"
-              className={css.cancelButton}
-              onClick={handleCancel}
-            >
+            <button type="button" className={css.cancelButton} onClick={cancel}>
               Cancel
             </button>
           </div>
@@ -99,4 +89,6 @@ export default function EditProfile() {
       </div>
     </main>
   );
-}
+};
+
+export default EditProfile;

@@ -1,3 +1,3 @@
-export default function DefaultNotes() {
-  return null;
-}
+const Default = () => null;
+
+export default Default;

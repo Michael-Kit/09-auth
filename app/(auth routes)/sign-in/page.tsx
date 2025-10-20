@@ -2,12 +2,12 @@
 
 import { ApiError } from '@/app/api/api';
 import { login, UserRequest } from '@/lib/api/clientApi';
+import { useAuthStore } from '@/lib/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useAuthStore } from '@/lib/store/authStore';
 import css from './SignInPage.module.css';
 
-export default function SignIn() {
+const SignIn = () => {
   const router = useRouter();
   const [error, setError] = useState('');
   const setUser = useAuthStore((state) => state.setUser);
@@ -19,13 +19,15 @@ export default function SignIn() {
 
       if (res) {
         setUser(res);
+
         router.push('/profile');
+      } else {
+        setError('Invalid email or password');
       }
     } catch (error) {
       setError(
-        (error as ApiError).response?.data?.response?.validation?.body
-          ?.message ??
-          (error as ApiError).response?.data?.response?.message ??
+        (error as ApiError).response?.data?.error ??
+          (error as ApiError).message ??
           'Oops... some error',
       );
     }
@@ -33,7 +35,7 @@ export default function SignIn() {
 
   return (
     <main className={css.mainContent}>
-      <form action={handleSubmit} className={css.form}>
+      <form className={css.form} action={handleSubmit}>
         <h1 className={css.formTitle}>Sign in</h1>
 
         <div className={css.formGroup}>
@@ -68,4 +70,6 @@ export default function SignIn() {
       </form>
     </main>
   );
-}
+};
+
+export default SignIn;

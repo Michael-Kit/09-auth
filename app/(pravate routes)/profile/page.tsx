@@ -1,15 +1,35 @@
+import Link from 'next/link';
+import css from './ProfilePage.module.css';
 import Image from 'next/image';
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { getMe } from '@/lib/api/serverApi';
-import css from './ProfilePage.module.css';
 
 export const metadata: Metadata = {
   title: 'Profile',
-  description: 'Your profile',
+  description: 'Profile page',
+  openGraph: {
+    title: 'Profile',
+    description: 'Manage your profile settings',
+    url: `https://08-zustand-eight-pi.vercel.app`,
+    images: [
+      {
+        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NoteHub',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Profile`,
+    description: 'Manage your profile settings',
+    images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
+  },
 };
 
-export default async function Profile() {
+const Profile = async () => {
   const user = await getMe();
 
   return (
@@ -37,4 +57,6 @@ export default async function Profile() {
       </div>
     </main>
   );
-}
+};
+
+export default Profile;

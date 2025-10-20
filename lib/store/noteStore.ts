@@ -1,17 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { NoteFormData } from '@/types/note';
+import { NoteFormValues, NoteTag } from '@/types/note';
 
 type NoteDraftStore = {
-  draft: NoteFormData;
-  setDraft: (note: NoteFormData) => void;
+  draft: NoteFormValues;
+  setDraft: (note: NoteFormValues) => void;
   clearDraft: () => void;
 };
 
-const initialDraft: NoteFormData = {
+const initialDraft: NoteFormValues = {
   title: '',
   content: '',
-  tag: 'Todo',
+  tag: NoteTag.Todo,
 };
 
 export const useNoteDraftStore = create<NoteDraftStore>()(
