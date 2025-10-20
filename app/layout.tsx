@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: 'Note Hub',
     description:
       'Note Hub is a clean and minimal personal notebook for capturing your thoughts and ideas. Fast, reliable, and distraction-free — your space to think clearly.',
-    url: 'https://08-zustand-tau-gilt.vercel.app/',
+    url: 'https://08-zustand-tau-gilt.vercel.app',
     images: [
       { url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg' },
     ],
