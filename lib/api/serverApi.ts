@@ -3,11 +3,12 @@ import { nextServer } from './api';
 import { User } from '@/types/user';
 import { Note } from '@/types/note';
 import { CheckSessionRequest, NotesHTTPResponse } from './clientApi';
+import type { AxiosResponse } from 'axios';
 
 // Універсальна функція для формування заголовка Cookie
 const getAllCookiesHeader = async (): Promise<string> => {
-  const cookieStore = await cookies(); // ✅ await — бо cookies() повертає Promise
-  const allCookies: { name: string; value: string }[] = cookieStore.getAll(); // ✅ явна типізація
+  const cookieStore = await cookies();
+  const allCookies: { name: string; value: string }[] = cookieStore.getAll();
 
   return allCookies.map(({ name, value }) => `${name}=${value}`).join('; ');
 };
@@ -58,14 +59,15 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const checkSession = async (): Promise<CheckSessionRequest> => {
+// ❗ Повертаємо повний AxiosResponse, бо middleware потребує headers
+export const checkSession = async (): Promise<
+  AxiosResponse<CheckSessionRequest>
+> => {
   const cookieHeader = await getAllCookiesHeader();
 
-  const { data } = await nextServer.get<CheckSessionRequest>('/auth/session', {
+  return await nextServer.get<CheckSessionRequest>('/auth/session', {
     headers: {
       Cookie: cookieHeader,
     },
   });
-
-  return data;
 };
